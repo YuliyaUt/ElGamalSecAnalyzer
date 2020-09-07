@@ -1,6 +1,16 @@
 import math
 
 
+def get_param_by_key(params, key, message):
+    if (key in params) and (len(params) > (params.index(key) + 1)):
+        ind = params.index(key)
+        param = params[ind + 1]
+    else:
+        print(message)
+        param = input()
+    return param
+
+
 # Euclid's algorithm
 def gcd(a, b):
     if a == 0 or b == 0:
@@ -37,7 +47,7 @@ def inverse(a, module):
     return p
 
 
-def baby_step_giant_step(y, g, p):
+def baby_step_giant_step(y, g, p, timeout):
     # Choose m - size of prebuilt table (meet-in-the-middle)
     m = int(math.sqrt(p-1)) + 1
     # Prebuild table of g^(m*i)
@@ -56,6 +66,7 @@ def baby_step_giant_step(y, g, p):
     return 0
 
 
+# Need primes.txt file in order for this function to work
 def find_factors(n):
     # factors are found by absolute value
     if n < 0:
@@ -78,12 +89,12 @@ def find_factors(n):
     return factors
 
 
-def pohlig_hellman_algorithm(y, g, p):
+def pohlig_hellman_algorithm(y, g, p, timeout):
     # h = y, n = p-1, a = g
     h, n, a = y, p-1, g
     # at first going to find log_a(h) by modulo q**k:  q**k || (p-1) for all prime q | (p-1)
     factors = find_factors(n)
-    print(factors)
+    # print(factors)
     logarithms = {}
     if 2 in factors.keys():
         k = factors[2]
@@ -132,7 +143,7 @@ def pohlig_hellman_algorithm(y, g, p):
     return x
 
 
-def pollards_rho_method(y, g, p):
+def pollards_rho_method(y, g, p, timeout):
     # a = g, h = y, n = p-1
     a, h, n = g % p, y % p, p-1
     h_sequence = []
@@ -182,7 +193,7 @@ def pollards_rho_method(y, g, p):
             d = gcd(y_dif, n)
             n_0 = n // d
             log_0 = (- x_dif * inverse(y_dif, n_0)) % n_0
-            print(x_dif, y_dif, d, n_0, log_0)
+            # print(x_dif, y_dif, d, n_0, log_0)
             for i in range(d):
                 log = log_0 + i * n_0
                 if pow(a, log, p) == (h % p):
@@ -192,38 +203,79 @@ def pollards_rho_method(y, g, p):
 
 def test():
     y, g, p = 3, 5, 23
-    print("x =", baby_step_giant_step(y, g, p))
+    timeout = 120
+    print("x =", baby_step_giant_step(y, g, p, timeout))
     y, g, p = 13, 3, 17
-    print("x =", baby_step_giant_step(y, g, p))
-    print("first polig is", pohlig_hellman_algorithm(3, 5, 23))
-    print("second polig is", pohlig_hellman_algorithm(13, 3, 17))
-    print("third polig is", pohlig_hellman_algorithm(11, 3, 17))
-    print("forth polig is", pohlig_hellman_algorithm(28, 2, 37))
-    print(pollards_rho_method(3, 5, 23))
-    print(pollards_rho_method(13, 3, 17))
-    print(pollards_rho_method(5, 2, 1019))
+    print("x =", baby_step_giant_step(y, g, p, timeout))
+    print("first polig is", pohlig_hellman_algorithm(3, 5, 23, timeout))
+    print("second polig is", pohlig_hellman_algorithm(13, 3, 17, timeout))
+    print("third polig is", pohlig_hellman_algorithm(11, 3, 17, timeout))
+    print("forth polig is", pohlig_hellman_algorithm(28, 2, 37, timeout))
+    print(pollards_rho_method(3, 5, 23, timeout))
+    print(pollards_rho_method(13, 3, 17, timeout))
+    print(pollards_rho_method(5, 2, 1019, timeout))
     print("--------------------y=-1, g=5, p=67453-------------------")
-    print("baby-giant:", baby_step_giant_step(-1, 5, 67453))
-    print("pohlig-hellman", pohlig_hellman_algorithm(-1, 5, 67453))
-    print("rho-method", pollards_rho_method(-1, 5, 67453))
+    print("baby-giant:", baby_step_giant_step(-1, 5, 67453, timeout))
+    print("pohlig-hellman", pohlig_hellman_algorithm(-1, 5, 67453, timeout))
+    print("rho-method", pollards_rho_method(-1, 5, 67453, timeout))
     print("--------------------y=11, g=3, p=59441-------------------")
-    print("baby-giant:", baby_step_giant_step(11, 3, 59441))
-    print("pohlig-hellman", pohlig_hellman_algorithm(11, 3, 59441))
-    print("rho-method", pollards_rho_method(11, 3, 59441))
+    print("baby-giant:", baby_step_giant_step(11, 3, 59441, timeout))
+    print("pohlig-hellman", pohlig_hellman_algorithm(11, 3, 59441, timeout))
+    print("rho-method", pollards_rho_method(11, 3, 59441, timeout))
     print("--------------------y=-1, g=3, p=715827881-------------------")
-    print("baby-giant:", baby_step_giant_step(-1, 3, 715827881))
-    print("pohlig-hellman", pohlig_hellman_algorithm(-1, 3, 715827881))
-    print("rho-method", pollards_rho_method(-1, 3, 715827883))
+    print("baby-giant:", baby_step_giant_step(-1, 3, 715827881, timeout))
+    print("pohlig-hellman", pohlig_hellman_algorithm(-1, 3, 715827881, timeout))
+    print("rho-method", pollards_rho_method(-1, 3, 715827883, timeout))
     print(pow(3, 97612893, 715827883))
     print(pow(3, 184379909, 715827883))
     print("--------------------y=5, g=11, p=477224802150431------------------")
-    print("pohlig-hellman", pohlig_hellman_algorithm(5, 11, 477224802150431))
-    print("rho-method", pollards_rho_method(5, 11, 477224802150431))
+    print("pohlig-hellman", pohlig_hellman_algorithm(5, 11, 477224802150431, timeout))
+    print("rho-method", pollards_rho_method(5, 11, 477224802150431, timeout))
+
+
+def test_mode(params):
+    test()
+    pass
+
+
+def analysis_mode(params):
+    timeout_param = int(get_param_by_key(params, "-t", "Enter timeout for one attack (in seconds)"))
+    p_param = int(get_param_by_key(params, "-p", "Enter p of public key (prime modulo)"))
+    y_param = int(get_param_by_key(params, "-y", "Enter y of public key(y=g^x mod p)"))
+    g_param = int(get_param_by_key(params, "-g", "Enter g of public key"))
+    x = baby_step_giant_step(y_param, g_param, p_param, timeout_param)
+    if pow(g_param, x, p_param) == y_param % p_param:
+        print("Success of baby step - giant step attack! x =", x)
+    else:
+        print("Baby step - giant step attack did not succeed! ")
+    x = pohlig_hellman_algorithm(y_param, g_param, p_param, timeout_param)
+    if pow(g_param, x, p_param) == y_param % p_param:
+        print("Success of Pohlig-Hellman algorithm! x =", x)
+    else:
+        print("Pohlig-Hellman algorithm did not succeed! ")
+    x = pollards_rho_method(y_param, g_param, p_param, timeout_param)
+    if pow(g_param, x, p_param) == y_param % p_param:
+        print("Success of Pollard's Rho algorithm! x =", x)
+    else:
+        print("Pollard's Rho algorithm did not succeed! ")
+    pass
 
 
 def main():
-    # y, g, p = eval(input())
-    test()
+    print("-------------------------ElGamal Security Analyzer-------------------------")
+    print("Enter '/test [-n system_parameter]' for test mode")
+    print("Enter '/analyze [-y y] [-g g] [-p p] [-t timeout_in_seconds]' for public key security analysis")
+    command = input()
+    if not command:
+        return 0
+    params = command.split(" ")
+    mode = params[0]
+    if mode == "/test":
+        test_mode(params)
+    elif mode == "/analyze":
+        analysis_mode(params)
+    else:
+        print("Couldn't recognize a command")
     return 0
 
 
